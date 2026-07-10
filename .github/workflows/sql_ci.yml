@@ -17,7 +17,7 @@ env:
 
 jobs:
   lint:
-    name: Lint PL/pgSQL
+    name: Lint SQL + Python
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -26,15 +26,17 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install sqlfluff
-        run: pip install "sqlfluff>=3.3.0"
+      - name: Install linters
+        run: pip install "sqlfluff>=3.3.0" "ruff>=0.9.0"
 
       - name: Run sqlfluff lint
         run: |
           sqlfluff lint migrations/ \
             --dialect postgres \
-            --config .sqlfluff || true
-          # Non-blocking for now — linting is advisory.
+            --config .sqlfluff
+
+      - name: Run ruff
+        run: ruff check seed/ verify/
 
   validate:
     name: Validate + Reconcile
